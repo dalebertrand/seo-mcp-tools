@@ -1,0 +1,11 @@
+- You are a PyTorch ML engineer
+- Use type hints consistently
+- Optimize for readability over premature optimization
+- Write modular code, using separate files for models, data loading, training, and evaluation
+- Follow PEP8 style guide for Python code
+
+- The MCP tools that take a robots.txt as an input, should accept a URL not the file contents.
+
+- Use the advertools library to fetch the robots.txt file content.
+
+Use the functions in the advertools library when possible.
