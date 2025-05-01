@@ -4,11 +4,10 @@ A Model Context Protocol (MCP) server that provides SEO tools for analyzing robo
 
 ## Features
 
-The SEO MCP Tools server provides three primary tools:
+The SEO MCP Tools server provides two primary tools:
 
 1. **Get First Sitemap URL**: Extract the first sitemap URL from a robots.txt file.
 2. **Get All Sitemap URLs**: Extract all sitemap URLs from a robots.txt file.
-3. **Analyze Robots.txt**: Perform comprehensive analysis of robots.txt files, including user agents, sitemaps, and path directives.
 
 ## Requirements
 
@@ -71,20 +70,6 @@ all_sitemaps = client.call("get_all_sitemap_urls_from_robots_txt", {
     "robots_txt_url": "https://example.com/robots.txt"
 })
 print(f"All sitemap URLs: {all_sitemaps}")
-```
-
-#### Analyze Robots.txt
-
-```python
-# Get comprehensive analysis of a robots.txt file
-analysis = client.call("analyze_robots_txt", {
-    "robots_txt_url": "https://example.com/robots.txt"
-})
-print("Robots.txt Analysis:")
-print(f"- User Agents: {analysis['user_agents']}")
-print(f"- Sitemaps: {analysis['sitemaps']}")
-print(f"- Disallowed Paths: {analysis['disallowed_paths']}")
-print(f"- Allowed Paths: {analysis['allowed_paths']}")
 ```
 
 ## Claude Desktop Integration

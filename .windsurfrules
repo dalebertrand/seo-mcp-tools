@@ -8,7 +8,9 @@
 
 - Use the advertools library to fetch the robots.txt file content.
 
-- Use the functions in the advertools library when possible.
+- Use the functions in the advertools library.
+
+- Send error messages to stderr, not stdout
 
 
 ## Error Handling Protocol
