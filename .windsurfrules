@@ -8,4 +8,23 @@
 
 - Use the advertools library to fetch the robots.txt file content.
 
-Use the functions in the advertools library when possible.
+- Use the functions in the advertools library when possible.
+
+
+## Error Handling Protocol
+1. **Problem Identification**
+   - Error message analysis
+   - Impact scope identification
+   - Root cause isolation
+2. **Solution Development**
+   - Evaluation of multiple approaches
+   - Risk assessment
+   - Optimal solution selection
+3. **Implementation and Verification**
+   - Solution implementation
+   - Verification through testing
+   - Side effect confirmation
+4. **Documentation**
+   - Record of problem and solution
+   - Preventive measure proposals
+   - Sharing of learning points
