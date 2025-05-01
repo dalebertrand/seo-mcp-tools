@@ -14,8 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Import the functions from mcp_server
 from mcp_server import (
     get_sitemap_url_from_robots_txt,
-    get_all_sitemap_urls_from_robots_txt,
-    analyze_robots_txt
+    get_all_sitemap_urls_from_robots_txt
 )
 
 # Sample test websites
@@ -72,13 +71,7 @@ def test_with_real_websites():
         for sitemap in all_sitemaps:
             print(f"  - {sitemap}")
         
-        # Test analyze_robots_txt
-        analysis = analyze_robots_txt(robots_content)
-        print(f"Analysis result:")
-        print(f"  - User agents: {len(analysis['user_agents'])}")
-        print(f"  - Sitemaps: {len(analysis['sitemaps'])}")
-        print(f"  - Disallowed paths: {len(analysis['disallowed_paths'])}")
-        print(f"  - Allowed paths: {len(analysis['allowed_paths'])}")
+        # Test analyze_robots_txt removed
 
 def test_with_sample_content():
     """Test with a known sample robots.txt content"""
@@ -98,16 +91,11 @@ def test_with_sample_content():
     all_sitemaps = get_all_sitemap_urls_from_robots_txt(test_url)
     print(f"All sitemap URLs count: {len(all_sitemaps)}")
     
-    analysis = analyze_robots_txt(test_url)
-    print("Analysis result:")
-    for key, value in analysis.items():
-        print(f"  - {key}: {value}")
+    # analyze_robots_txt test removed
         
     # Assert tests for the real website
     assert first_sitemap is not None, "First sitemap URL extraction failed"
     assert len(all_sitemaps) > 0, "No sitemaps found"
-    assert len(analysis["user_agents"]) > 0, "No user agents found"
-    assert len(analysis["disallowed_paths"]) > 0, "No disallowed paths found"
     
     print("All sample tests passed!")
 

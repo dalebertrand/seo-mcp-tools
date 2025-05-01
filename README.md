@@ -83,7 +83,7 @@ print(f"All sitemap URLs: {all_sitemaps}")
        "transport": {
          "type": "stdio",
          "command": {
-           "path": "python",
+           "path": "/path/to/python",
            "args": ["/path/to/mcp_server.py"]
          }
        },
