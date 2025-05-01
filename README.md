@@ -89,34 +89,31 @@ print(f"- Allowed Paths: {analysis['allowed_paths']}")
 
 ## Claude Desktop Integration
 
-To use this server with Claude Desktop:
-
-1. Create an MCP configuration file (e.g., `mcp_config.json`):
+1. Create a minimal MCP configuration file:
    ```json
    {
      "version": "v1",
-     "endpoints": [
-       {
-         "name": "SEO Tools",
-         "description": "MCP Server for SEO tools with capabilities to analyze robots.txt files and extract sitemap URLs",
-         "transport": {
-           "type": "stdio",
-           "command": {
-             "path": "python",
-             "args": ["/path/to/mcp_server.py"]
-           }
-         },
-         "input_format": "json",
-         "output_format": "json"
-       }
-     ]
+     "endpoints": [{
+       "name": "SEO Tools",
+       "transport": {
+         "type": "stdio",
+         "command": {
+           "path": "python",
+           "args": ["/path/to/mcp_server.py"]
+         }
+       },
+       "input_format": "json",
+       "output_format": "json"
+     }]
    }
    ```
 
-2. Install the server in Claude Desktop:
+2. Install in Claude Desktop:
    ```bash
    fastmcp install mcp_server.py
    ```
+
+For development/testing mode, use: `fastmcp dev mcp_server.py`
 
 ## Testing
 
