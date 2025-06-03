@@ -4,10 +4,7 @@ A Model Context Protocol (MCP) server that provides SEO tools for analyzing robo
 
 ## Features
 
-The SEO MCP Tools server provides two primary tools:
-
-1. **Get First Sitemap URL**: Extract the first sitemap URL from a robots.txt file.
-2. **Get All Sitemap URLs**: Extract all sitemap URLs from a robots.txt file.
+The SEO MCP Tools server provides tools for interacting with and analyzing website SEO components like `robots.txt` and sitemaps. See the "Available Tools" section for a detailed list and descriptions.
 
 ## Requirements
 
@@ -30,6 +27,94 @@ The SEO MCP Tools server provides two primary tools:
    pip install fastmcp advertools requests pandas
    ```
 
+## Available Tools
+
+This server provides the following tools:
+
+### 1. `get_sitemap_url_from_robots_txt`
+
+*   **Description**: Extracts the first sitemap URL found in a given `robots.txt` file URL.
+*   **Parameters**:
+    *   `robots_txt_url: str`: The URL of the `robots.txt` file (e.g., `'https://example.com/robots.txt'`).
+*   **Returns**: `Optional[str]`
+    *   The first sitemap URL found, or `None` if no sitemap is specified or an error occurs.
+*   **Example Return**:
+    ```
+    "https://example.com/sitemap.xml"
+    ```
+    ```
+    None
+    ```
+
+### 2. `get_all_sitemap_urls_from_robots_txt`
+
+*   **Description**: Extracts all sitemap URLs found in a given `robots.txt` file URL.
+*   **Parameters**:
+    *   `robots_txt_url: str`: The URL of the `robots.txt` file (e.g., `'https://example.com/robots.txt'`).
+*   **Returns**: `List[str]`
+    *   A list of all sitemap URLs found. Returns an empty list if no sitemaps are found or an error occurs.
+*   **Example Return**:
+    ```
+    ["https://example.com/sitemap1.xml", "https://example.com/sitemap2.xml"]
+    ```
+    ```
+    []
+    ```
+
+### 3. `get_sitemap_content`
+
+*   **Description**: Fetches and parses a sitemap URL, returning its content as a list of dictionaries.
+*   **Parameters**:
+    *   `sitemap_url: str`: The URL of the sitemap (e.g., `'https://example.com/sitemap.xml'`).
+*   **Returns**: `List[Dict[str, Any]]`
+    *   A list of dictionaries representing the sitemap content. Each dictionary typically contains keys like `'loc'`, `'lastmod'`, etc. Returns an empty list if the sitemap is empty, an error occurs during fetching/parsing, or the sitemap itself reports errors.
+*   **Example Return**:
+    ```json
+    [
+      {"loc": "https://example.com/page1", "lastmod": "2023-01-01"},
+      {"loc": "https://example.com/page2", "lastmod": "2023-01-02", "changefreq": "weekly"}
+    ]
+    ```
+    ```json
+    []
+    ```
+
+### 4. `analyze_urls`
+
+*   **Description**: Parses a list of URLs and extracts their components (scheme, netloc, path, query, fragment, etc.).
+*   **Parameters**:
+    *   `urls: List[str]`: A list of URLs to analyze (e.g., `['https://example.com/path?query=1#frag', 'http://another.org/different_path']`).
+*   **Returns**: `List[Dict[str, Any]]`
+    *   A list of dictionaries, where each dictionary contains the parsed components of a URL. Returns an empty list if the input list is empty or an error occurs during parsing.
+*   **Example Return**:
+    ```json
+    [
+      {
+        "url": "https://example.com/path?query=1#frag",
+        "scheme": "https",
+        "netloc": "example.com",
+        "path": "/path",
+        "query": "query=1",
+        "fragment": "frag",
+        "dir_1": "path",
+        "last_dir": "path"
+      },
+      {
+        "url": "http://another.org/different_path",
+        "scheme": "http",
+        "netloc": "another.org",
+        "path": "/different_path",
+        "query": "",
+        "fragment": "",
+        "dir_1": "different_path",
+        "last_dir": "different_path"
+      }
+    ]
+    ```
+    ```json
+    []
+    ```
+
 ## Usage
 
 ### Running the Server
@@ -48,7 +133,9 @@ fastmcp dev mcp_server.py
 
 ### MCP Tool Calls
 
-#### Get First Sitemap URL
+Examples of how to call these tools using an MCP client:
+
+#### `get_sitemap_url_from_robots_txt`
 
 ```python
 from mcp_client import MCP_Client  # Assuming you're using an MCP client
@@ -62,7 +149,7 @@ first_sitemap = client.call("get_sitemap_url_from_robots_txt", {
 print(f"First sitemap URL: {first_sitemap}")
 ```
 
-#### Get All Sitemap URLs
+#### `get_all_sitemap_urls_from_robots_txt`
 
 ```python
 # Extract all sitemap URLs from a robots.txt file
@@ -70,6 +157,34 @@ all_sitemaps = client.call("get_all_sitemap_urls_from_robots_txt", {
     "robots_txt_url": "https://example.com/robots.txt"
 })
 print(f"All sitemap URLs: {all_sitemaps}")
+```
+
+#### `get_sitemap_content`
+
+```python
+# Fetch and parse a sitemap
+sitemap_data = client.call("get_sitemap_content", {
+    "sitemap_url": "https://example.com/sitemap.xml"
+})
+if sitemap_data:
+    for item in sitemap_data:
+        print(f"URL: {item.get('loc')}, Last Modified: {item.get('lastmod')}")
+else:
+    print("Sitemap is empty or could not be parsed.")
+```
+
+#### `analyze_urls`
+
+```python
+# Analyze a list of URLs
+url_analysis_results = client.call("analyze_urls", {
+    "urls": ["https://example.com/path?query=1#frag", "http://another.org/page"]
+})
+if url_analysis_results:
+    for result in url_analysis_results:
+        print(f"URL: {result.get('url')}, Domain: {result.get('netloc')}, Path: {result.get('path')}")
+else:
+    print("URL analysis failed or returned no data.")
 ```
 
 ## Claude Desktop Integration
