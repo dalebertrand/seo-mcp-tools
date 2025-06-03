@@ -115,6 +115,33 @@ This server provides the following tools:
     []
     ```
 
+### 5. `discover_sitemap_locations`
+
+*   **Description**: Helps find *potential* sitemap URLs for a given domain by checking against a predefined list of common sitemap path patterns.
+*   **Parameters**:
+    *   `base_url: str`: The base URL of the website (e.g., `"https://www.example.com"`).
+*   **Returns**: `List[str]`
+    *   A list of potential sitemap URLs.
+*   **How and When to Use It**:
+    *   This tool is useful when you don't know the exact URL of a website's sitemap.
+    *   It generates these URLs based on a **predefined list of common patterns** and **does not crawl or check if these URLs actually exist or point to valid sitemaps.**
+    *   The output is a list of *suggestions*.
+    *   You should then take these suggested URLs and verify them, for example, by:
+        *   Using the `get_sitemap_content` tool to try and parse them.
+        *   Manually trying to open them in a browser.
+        *   Using other SEO tools to check their validity.
+    *   This tool *only suggests possible locations* and does not perform any validation or parsing of the sitemaps themselves.
+*   **Example Return Value**:
+    ```json
+    [
+      "https://www.example.com/sitemap.xml",
+      "https://www.example.com/sitemap_index.xml",
+      "https://www.example.com/post-sitemap.xml",
+      "https://www.example.com/sitemap.txt"
+    ]
+    ```
+    *(Note: The actual list returned will be more comprehensive based on the predefined patterns in the function.)*
+
 ## Usage
 
 ### Running the Server
@@ -185,6 +212,25 @@ if url_analysis_results:
         print(f"URL: {result.get('url')}, Domain: {result.get('netloc')}, Path: {result.get('path')}")
 else:
     print("URL analysis failed or returned no data.")
+```
+
+#### `discover_sitemap_locations`
+
+```python
+# Discover potential sitemap locations for a website
+try:
+    potential_sitemaps = client.call("discover_sitemap_locations", { # Assuming client.call for consistency
+        "base_url": "https://www.example.com"
+    })
+    if potential_sitemaps:
+        print(f"Potential sitemap locations for https://www.example.com:")
+        for url in potential_sitemaps:
+            print(f"- {url}")
+    else:
+        print("No potential sitemap locations generated, or an error occurred (e.g., invalid base_url).")
+except Exception as e:
+    print(f"Error calling discover_sitemap_locations: {e}")
+
 ```
 
 ## Claude Desktop Integration

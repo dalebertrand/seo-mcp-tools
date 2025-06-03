@@ -13,12 +13,15 @@ from unittest.mock import patch, MagicMock
 # Add the parent directory to sys.path to allow importing mcp_server
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import io # For capturing stderr
+
 # Import the functions from mcp_server
 from mcp_server import (
     get_sitemap_url_from_robots_txt,  # Kept for context, though not tested here
     get_all_sitemap_urls_from_robots_txt,  # Kept for context
     get_sitemap_content,
-    analyze_urls
+    analyze_urls,
+    discover_sitemap_locations
 )
 
 class TestGetSitemapContent(unittest.TestCase):
@@ -68,7 +71,7 @@ class TestGetSitemapContent(unittest.TestCase):
     def test_sitemap_to_df_exception(self, mock_sitemap_to_df):
         """Test when adv.sitemap_to_df raises an exception."""
         mock_sitemap_to_df.side_effect = Exception("Network error")
-        
+
         result = get_sitemap_content("http://dummyurl.com/sitemap.xml")
         self.assertEqual(result, [])
 
@@ -127,7 +130,7 @@ class TestAnalyzeUrls(unittest.TestCase):
 #     try:
 #         robots_url = f"{website_url}/robots.txt"
 #         robots_df = adv.robotstxt_to_df(robots_url)
-        
+
 #         if 'errors' in robots_df.columns and not pd.isna(robots_df['errors'].iloc[0]):
 #             print(f"Error fetching robots.txt: {robots_df['errors'].iloc[0]}")
 #             return None
@@ -162,3 +165,78 @@ if __name__ == "__main__":
     print("Starting tests for the SEO Tools MCP server...")
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
     print("\nAll tests completed!")
+
+class TestDiscoverSitemapLocations(unittest.TestCase):
+    # This is the list of suffixes defined in mcp_server.py's discover_sitemap_locations function
+    # It must be kept in sync with the one in mcp_server.py for these tests to be accurate.
+    SITEMAP_SUFFIXES = [
+        "/sitemap.xml",
+        "/sitemap.xml.gz",
+        "/sitemap_index.xml",
+        "/sitemap-index.xml",
+        "/sitemap_index.xml.gz",
+        "/sitemap.php",
+        "/sitemap1.xml",
+        "/sitemap.txt",
+        "/post-sitemap.xml",
+        "/page-sitemap.xml",
+        "/category-sitemap.xml",
+        "/news-sitemap.xml",
+        "/video-sitemap.xml",
+        "/sitemap/",
+        "/sitemaps.xml",
+        "/sitemapindex.xml",
+        "/sitemap/index.xml",
+        "/sitemap/sitemap.xml",
+        "/gss/sitemap.xml",
+        "/feeds/posts/default?sitemap",
+        "/atom.xml?redirect=false&start-index=1&max-results=500",
+        "/robots.txt"
+    ]
+
+    def test_valid_base_url(self):
+        """Test with a valid base URL without a trailing slash."""
+        base_url = "https://example.com"
+        expected_variants = [base_url + suffix for suffix in self.SITEMAP_SUFFIXES]
+
+        result = discover_sitemap_locations(base_url)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(result, expected_variants)
+        # Check a few specific ones to be sure
+        self.assertIn("https://example.com/sitemap.xml", result)
+        self.assertIn("https://example.com/post-sitemap.xml", result)
+
+    def test_valid_base_url_with_trailing_slash(self):
+        """Test with a valid base URL that has a trailing slash."""
+        base_url_with_slash = "https://example.com/"
+        normalized_base_url = "https://example.com" # Function should normalize this
+        expected_variants = [normalized_base_url + suffix for suffix in self.SITEMAP_SUFFIXES]
+
+        result = discover_sitemap_locations(base_url_with_slash)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(result, expected_variants)
+        self.assertIn("https://example.com/sitemap_index.xml", result)
+
+    @patch('sys.stderr', new_callable=io.StringIO)
+    def test_empty_base_url(self, mock_stderr):
+        """Test with an empty base URL."""
+        result = discover_sitemap_locations("")
+        self.assertEqual(result, [])
+        self.assertIn("Error: base_url must be a non-empty string.", mock_stderr.getvalue())
+
+    @patch('sys.stderr', new_callable=io.StringIO)
+    def test_invalid_base_url_type(self, mock_stderr):
+        """Test with base_url of invalid types (None, int)."""
+        result_none = discover_sitemap_locations(None)
+        self.assertEqual(result_none, [])
+        self.assertIn("Error: base_url must be a non-empty string.", mock_stderr.getvalue())
+
+        # Clear stderr for the next call or check messages distinctly if needed
+        mock_stderr.seek(0)
+        mock_stderr.truncate(0)
+
+        result_int = discover_sitemap_locations(123)
+        self.assertEqual(result_int, [])
+        self.assertIn("Error: base_url must be a non-empty string.", mock_stderr.getvalue())

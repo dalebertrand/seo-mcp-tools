@@ -136,6 +136,64 @@ def analyze_urls(urls: List[str]) -> List[Dict[str, Any]]:
         print(f"Error analyzing URLs: {e}", file=sys.stderr)
         return []
 
+@mcp.tool()
+def discover_sitemap_locations(base_url: str) -> List[str]:
+    """
+    Generates a list of potential sitemap locations for a given base URL.
+
+    This function constructs common sitemap URLs based on a predefined list of
+    suffixes (e.g., /sitemap.xml, /sitemap_index.xml).
+    These are potential locations and should be verified (e.g., by trying to fetch them).
+    It no longer uses an advertools function for this specific task.
+
+    Args:
+        base_url: The base URL of the website (e.g., 'https://example.com').
+                  Should be a non-empty string.
+
+    Returns:
+        A list of potential sitemap URLs. Returns an empty list if the input
+        is invalid.
+    """
+    if not base_url or not isinstance(base_url, str):
+        print("Error: base_url must be a non-empty string.", file=sys.stderr)
+        return []
+
+    # Normalize base_url by removing any trailing slash
+    normalized_base_url = base_url.rstrip('/')
+
+    sitemap_suffixes = [
+        "/sitemap.xml",
+        "/sitemap.xml.gz",
+        "/sitemap_index.xml",
+        "/sitemap-index.xml",
+        "/sitemap_index.xml.gz",
+        # "/sitemap-index.xml.gz", # Duplicate, removing one
+        "/sitemap.php",
+        "/sitemap1.xml",
+        "/sitemap.txt",
+        "/post-sitemap.xml",
+        "/page-sitemap.xml",
+        "/category-sitemap.xml",
+        "/news-sitemap.xml",
+        "/video-sitemap.xml",
+        # Some other common patterns often found
+        "/sitemap/",
+        "/sitemaps.xml", # Plural
+        "/sitemapindex.xml", # No underscore/hyphen
+        "/sitemap/index.xml",
+        "/sitemap/sitemap.xml",
+        "/gss/sitemap.xml", # Google Site Search (less common now)
+        "/feeds/posts/default?sitemap", # Blogger/Blogspot pattern
+        "/atom.xml?redirect=false&start-index=1&max-results=500", # Older Blogger
+        "/robots.txt" # Not a sitemap, but people sometimes check it via this type of tool
+    ]
+
+    potential_sitemap_urls = []
+    for suffix in sitemap_suffixes:
+        potential_sitemap_urls.append(normalized_base_url + suffix)
+
+    return potential_sitemap_urls
+
 # If running directly, this will start the server in development mode
 if __name__ == "__main__":
     mcp.run()
